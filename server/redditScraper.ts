@@ -16,19 +16,21 @@ puppeteer
   .then(browser => browser.newPage())
   .then(page =>
     page.goto(REDDIT_URL).then(function() {
-      console.log(page.content());
       return page.content();
     })
   )
   .then(html => {
     const parsedHtml = cheerio.load(html);
-    const titles = parsedHtml('a[data-event-action="title"]').text();
-    backgrounds.push(titles);
+    parsedHtml('a[data-event-action="title"]').each(function() {
+      backgrounds.push({ title: parsedHtml(this).text });
+    });
+  })
+  .catch(err => {
+    Promise.reject(err);
   });
 
 const getBackgrounds = (req: Request, res: Response) => {
-  console.log(backgrounds);
-  setTimeout(getBackgrounds, 750);
+  return backgrounds;
 };
 
 export default getBackgrounds;

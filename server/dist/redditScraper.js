@@ -12,18 +12,20 @@ puppeteer_1.default
     .then(function (browser) { return browser.newPage(); })
     .then(function (page) {
     return page.goto(REDDIT_URL).then(function () {
-        console.log(page.content());
         return page.content();
     });
 })
     .then(function (html) {
     var parsedHtml = cheerio_1.default.load(html);
-    var titles = parsedHtml('a[data-event-action="title"]').text();
-    backgrounds.push(titles);
+    parsedHtml('a[data-event-action="title"]').each(function () {
+        backgrounds.push({ title: parsedHtml(this).text });
+    });
+})
+    .catch(function (err) {
+    Promise.reject(err);
 });
 var getBackgrounds = function (req, res) {
-    console.log(backgrounds);
-    setTimeout(getBackgrounds, 750);
+    return backgrounds;
 };
 exports.default = getBackgrounds;
 //# sourceMappingURL=redditScraper.js.map
